@@ -247,7 +247,7 @@ export default function Formulario() {
       <footer className="mt-8 text-center text-white text-sm">
         <p>© {new Date().getFullYear()} QR Code Generator</p>
         <p>Desenvolvido por <a href='https://eduardobrito.dev' className="underline hover:text-blue-300">Eduardo B.</a></p>
-        <p>Encontrou um problema? Envie em <a href="mailto:report@eduardobrito.dev">report@eduardobrito.dev</a>.</p>
+        <p>Este é um projeto Open Source! Contribua no GitHub <a href="https://github.com/Duduubas/qr-code-generator" target="_blank" rel="noopener noreferrer">clicando aqui</a>!</p>
       </footer>
     </div>
   );
