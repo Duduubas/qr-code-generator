@@ -1,110 +1,34 @@
-// app/page.tsx (Next.js 13+)
 "use client";
 
-import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useQRCodeGenerator } from '@/components/formularioComponents';
+import { QRCodeDisplay } from '@/components/qrCodeDisplay';
 import Head from 'next/head';
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react';
 
 export default function Formulario() {
-  const [inputValue, setInputValue] = useState<string>('');
-  const [url, setUrl] = useState<string>('');
-  const [qrGenerated, setQrGenerated] = useState<boolean>(false);
-  const [fgColor, setFgColor] = useState<string>('#000')
-  const [bgColor, setBgColor] = useState<string>('#fff')
-  const [title, setTitle] = useState<string>('')
-  const [descricao, setDescricao] = useState<string>('')
-
-  // Função para formatar a URL
-  const formatURL = (input: string): string => {
-    let formattedUrl = input.trim();
-
-    // Se não tiver nenhum protocolo (http:// ou https://)
-    if (!formattedUrl.match(/^https?:\/\//i)) {
-      // Adiciona https:// por padrão
-      formattedUrl = `https://${formattedUrl}`;
-    }
-
-    return formattedUrl;
-  };
-
-  const handleGenerateQR = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue) {
-      // Formata a URL antes de gerar o QR code
-      const formattedUrl = formatURL(inputValue);
-      setUrl(formattedUrl);
-      setQrGenerated(true);
-    }
-  };
-
-  const handleDownload = () => {
-    // Buscar o elemento SVG
-    const svgElement = document.getElementById('qr-code');
-    if (!svgElement) return;
-
-    // Criar um canvas temporário
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    // Calcular a altura adicional necessária para o título e descrição
-    const titleHeight = title ? 30 : 0;
-    const descriptionHeight = descricao ? 30 : 0;
-    const extraHeight = titleHeight + descriptionHeight;
-
-    // Definir tamanho do canvas (incluindo espaço para título e descrição)
-    canvas.width = 200;
-    canvas.height = 200 + extraHeight;
-
-    // Converter SVG para uma imagem
-    const img = new Image();
-    const svgData = new XMLSerializer().serializeToString(svgElement);
-    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const svgUrl = URL.createObjectURL(svgBlob);
-
-    img.onload = () => {
-      // Preenchendo o fundo
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Desenhar imagem no canvas (QR code)
-      context.drawImage(img, 0, 0);
-
-      // Adicionar o título se existir
-      if (title) {
-        context.font = 'bold 16px Arial';
-        context.textAlign = 'center';
-        context.fillStyle = 'black';
-        context.fillText(title, canvas.width / 2, 200 + 20); // Posição abaixo da imagem
-      }
-
-      // Adicionar a descrição se existir
-      if (descricao) {
-        context.font = '14px Arial';
-        context.textAlign = 'center';
-        context.fillStyle = 'black';
-        context.fillText(descricao, canvas.width / 2, 200 + titleHeight + 15); // Posição abaixo do título
-      }
-
-      // Converter para PNG e baixar
-      const pngUrl = canvas.toDataURL('image/png');
-
-      const downloadLink = document.createElement('a');
-      downloadLink.href = pngUrl;
-      downloadLink.download = 'qrcode.png';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-      URL.revokeObjectURL(svgUrl);
-    };
-
-    img.src = svgUrl;
-  };
+  const {
+    inputValue,
+    setInputValue,
+    url,
+    qrGenerated,
+    fgColor,
+    setFgColor,
+    bgColor,
+    setBgColor,
+    title,
+    setTitle,
+    descricao,
+    setDescricao,
+    handleGenerateQR,
+    handleDownload
+  } = useQRCodeGenerator();
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
+      <Head>
+        <title>Gerador de QR Code</title>
+        <meta name="description" content="Gerador de QR Code simples e rápido" />
+      </Head>
 
       {/* Título e Descrição */}
       <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
@@ -201,46 +125,16 @@ export default function Formulario() {
           </button>
         </form>
 
-
-        {/* Geração do QR Code*/}
+        {/* Exibição do QR Code */}
         {qrGenerated && (
-          <div className="text-center">
-            <div className='bg-gray-100 p-4 rounded-lg my-5'>
-            <div className="flex items-center justify-center">
-              <QRCodeSVG
-                id="qr-code"
-                value={url}
-                size={200}
-                level="H"
-                includeMargin={true}
-                fgColor={fgColor}
-                bgColor={bgColor}
-              />
-            </div>
-            {title && (
-              <h2 className="text-xl font-semibold text-gray-800">
-                {title}
-              </h2>
-            )}
-
-            {descricao && (
-              <h2 className="text-xl font-xl mb-3 text-gray-white">
-                {descricao}
-              </h2>
-            )}
-            </div>
-
-            <div className="mb-4 text-sm text-gray-600">
-              <p>URL: {url}</p>
-            </div>
-
-            <button
-              onClick={handleDownload}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
-            >
-              Baixar QR Code
-            </button>
-          </div>
+          <QRCodeDisplay
+            url={url}
+            fgColor={fgColor}
+            bgColor={bgColor}
+            title={title}
+            descricao={descricao}
+            handleDownload={handleDownload}
+          />
         )}
       </div>
 
