@@ -1,6 +1,5 @@
 // formularioComponents.tsx
 import { useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 
 export const useQRCodeGenerator = () => {
     const [inputValue, setInputValue] = useState<string>('');
